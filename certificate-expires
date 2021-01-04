@@ -21,8 +21,6 @@ def compute_expiration_of_site(hostname: str) -> str:
     """Return human readable expire date information."""
     try:
         expire_date = connect_and_compute_expiry(hostname)
-    except OSError:
-        return "*** computation failed: Hostname or Timeout"
     except Exception as e:
         return "*** computation failed: {} ***".format(e)
     if expire_date < datetime.timedelta(days=0):
