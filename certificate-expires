@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Check how many days a certificate of one or more sites is valid."""
+
+import datetime
+import socket
+import ssl
+import sys
+
+def connect_and_compute_expiry(hostname: str, timeout: int = 10) -> datetime.timedelta:
+    """Connect to hostname and return a time delta of certificates' notAfter"""
+    context = ssl.create_default_context()
+    with socket.create_connection((hostname, 443), timeout) as sock:
+        with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+            cert = ssock.getpeercert()
+            # subject, commonName, issuer, notBefore, notAfter,
+            # subjectAltName, OCSP, caIssuers, crlDistributionPoints
+            return datetime.datetime.strptime(cert['notAfter'], \
+                    r'%b %d %H:%M:%S %Y %Z') - datetime.datetime.utcnow()
+
+def compute_expiration_of_site(hostname: str) -> str:
+    """Return human readable expire date information."""
+    try:
+        expire_date = connect_and_compute_expiry(hostname)
+    except OSError:
+        return "*** computation failed: Hostname or Timeout"
+    except Exception as e:
+        return "*** computation failed: {} ***".format(e)
+    if expire_date < datetime.timedelta(days=0):
+        return "expired"
+    return "expires in {} days".format(expire_date.days)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 1:
+        sys.exit(1)
+    sites = sys.argv[1:]
+    for site in sites:
+        print("{} {}".format(site, compute_expiration_of_site(site)))
