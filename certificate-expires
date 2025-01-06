@@ -14,8 +14,11 @@ def connect_and_compute_expiry(hostname: str, timeout: int = 10) -> datetime.tim
             cert = ssock.getpeercert()
             # subject, commonName, issuer, notBefore, notAfter,
             # subjectAltName, OCSP, caIssuers, crlDistributionPoints
-            return datetime.datetime.strptime(cert['notAfter'], \
-                    r'%b %d %H:%M:%S %Y %Z') - datetime.datetime.utcnow()
+            not_after = datetime.datetime.strptime(
+                cert['notAfter'],
+                '%b %d %H:%M:%S %Y %Z'
+            )
+            return not_after.replace(tzinfo=datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc) 
 
 def compute_expiration_of_site(hostname: str) -> str:
     """Return human readable expire date information."""
