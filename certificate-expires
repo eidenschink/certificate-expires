@@ -22,14 +22,14 @@ def compute_expiration_of_site(hostname: str) -> str:
     try:
         expire_date = connect_and_compute_expiry(hostname)
     except Exception as e:
-        return "*** computation failed: {} ***".format(e)
+        return f"*** computation failed: {e} ***"
     if expire_date < datetime.timedelta(days=0):
         return "expired"
-    return "expires in {} days".format(expire_date.days)
+    return f"expires in {expire_date.days} days"
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit(1)
     sites = sys.argv[1:]
     for site in sites:
-        print("{} {}".format(site, compute_expiration_of_site(site)))
+        print(f"{site} {compute_expiration_of_site(site)}")
