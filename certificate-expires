@@ -28,7 +28,7 @@ def compute_expiration_of_site(hostname: str) -> str:
     return "expires in {} days".format(expire_date.days)
 
 if __name__ == '__main__':
-    if len(sys.argv) < 1:
+    if len(sys.argv) < 2:
         sys.exit(1)
     sites = sys.argv[1:]
     for site in sites:
